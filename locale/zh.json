@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "STL 转可编辑零件",
+    "description": "从左侧栏打开转换工作台，把 STL 网格重建为带原生特征、完全定义草图和驱动尺寸的 SolidWorks 零件。"
+  }
+}

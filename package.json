@@ -1,0 +1,56 @@
+{
+  "name": "dsh-stl-to-editable-part",
+  "version": "0.2.0",
+  "description": "DeepSeek Harness plugin that adds a sidebar workbench for rebuilding STL meshes as editable SolidWorks parts.",
+  "homepage": "https://github.com/msz3546/stl-to-editable-part",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msz3546/stl-to-editable-part.git"
+  },
+  "type": "module",
+  "main": "./index.js",
+  "icon": "./assets/icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./assets/icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "assets/icon.svg",
+    "locale/*.json",
+    "skills/stl-to-editable-part/SKILL.md",
+    "skills/stl-to-editable-part/references/*.md",
+    "skills/stl-to-editable-part/scripts/**/*.py",
+    "skills/stl-to-editable-part/scripts/**/*.ps1",
+    "skills/stl-to-editable-part/scripts/solidworks/*.cs"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "solidworks",
+    "stl"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    }
+  }
+}

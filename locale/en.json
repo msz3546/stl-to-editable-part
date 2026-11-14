@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "STL to editable part",
+    "description": "Open a conversion workbench from the sidebar and rebuild STL meshes as SolidWorks parts with native features, fully defined sketches, and driving dimensions."
+  }
+}
