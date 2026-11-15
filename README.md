@@ -2,7 +2,7 @@
 
 DeepSeek Harness 插件 `dsh-stl-to-editable-part`。它在左侧栏增加一个立方体入口，打开「STL 转可编辑零件」工作台；同时注册 `/stl-to-editable-part` 技能。安装后，工作台可以收集 STL 路径、单位和输出文件名，并在新会话中填入转换任务。
 
-转换在本机完成：工作流验证网格、合并共面三角面、恢复能可靠拟合的直通圆孔，优先使用 FeatureWorks，必要时从已验证的几何基线用拉伸、切除、孔等原生特征重建，最后检查草图约束、驱动尺寸和下游特征。
+v0.3.1 在本机按实测方案建立 SolidWorks 原生特征。新件先准备测量基线，再重建并验收。同一 STL 可用原任务的验收记录快速重出文件。新建候选检查实体、草图完全定义、驱动尺寸和几何基线。
 
 ## 使用
 
@@ -20,13 +20,13 @@ DeepSeek Harness 插件 `dsh-stl-to-editable-part`。它在左侧栏增加一个
 有 CLI 的用户也可以在目标 profile 安装。将命令中的 profile 和文件路径换成自己的值。
 
 ```powershell
-dsh plugin --profile desktop add 'file:C:/Downloads/dsh-stl-to-editable-part-0.2.0.tgz'
+dsh plugin --profile desktop add 'file:C:/Downloads/dsh-stl-to-editable-part-0.3.1.tgz'
 ```
 
 ## 运行环境
 
 - Windows x64
-- 本机可运行的 SolidWorks，建议启用 FeatureWorks
+- 本机可运行的 SolidWorks
 - Python 3.12 x64、NumPy、Open CASCADE Python 绑定（OCP）
 
 依赖检查与安装见 [`skills/stl-to-editable-part/references/deepseek-harness.md`](skills/stl-to-editable-part/references/deepseek-harness.md)。安装插件本身不需要启动 CAD。

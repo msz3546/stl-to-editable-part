@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.Web.Script.Serialization;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
-using SolidWorks.Interop.fworks;
 
 public static class SolidWorksPart {
     public class Plan {
@@ -471,22 +470,16 @@ public static class SolidWorksPart {
         return model;
     }
 
-    static IFeatureWorksApp FeatureWorks(ISldWorks app,string dll) {
-        var featureWorks=app.GetAddInObject("FeatureWorks.FeatureWorksApp") as IFeatureWorksApp;
-        if(featureWorks==null && File.Exists(dll)) {
-            int result=app.LoadAddIn(dll);
-            Log("FeatureWorks LoadAddIn=" + result);
-            featureWorks=app.GetAddInObject("FeatureWorks.FeatureWorksApp") as IFeatureWorksApp;
-        }
-        Log("FeatureWorks API available=" + (featureWorks!=null));
-        return featureWorks;
-    }
-
-    public static void Run(string mode,string source,string destination,string baseline,string template,string fwDll,
-        int recognitionOptions,double volumeTolerance,double boundsTolerance,string editDimension,double editFactor,string preview) {
+    public static void Run(string mode,string source,string destination,string baseline,string template,
+        double volumeTolerance,double boundsTolerance,string editDimension,double editFactor,string preview) {
         var app=Connect();
-        if(mode=="Probe") { FeatureWorks(app,fwDll); return; }
-        if(mode=="Rebuild") { RebuildFromPlan(app,source,destination,template); return; }
+        if(mode=="Probe") return;
+        if(mode=="Rebuild" || mode=="RebuildValidate") {
+            RebuildFromPlan(app,source,destination,template);
+            if(mode=="Rebuild") return;
+            source=destination;
+            mode="Validate";
+        }
         var model=Open(app,source,mode=="Prepare");
         try {
             Activate(app,model);
@@ -500,28 +493,6 @@ public static class SolidWorksPart {
                     }
                     if(Tree(model).Any(f=>f.Is3DInterconnectFeature) || !Tree(model).Any(IsImported))
                         throw new InvalidOperationException("Independent import feature was not created");
-                    OneSolid(model);
-                    Audit(model);
-                    SavePart(model,destination);
-                    break;
-                case "Recognize":
-                    OneSolid(model);
-                    if(Tree(model).Any(f=>f.Is3DInterconnectFeature))
-                        throw new InvalidOperationException("Prepare a detached imported solid before recognition");
-                    var imported=Tree(model).FirstOrDefault(IsImported);
-                    if(imported==null) throw new InvalidOperationException("No imported base feature to recognize");
-                    var fw=FeatureWorks(app,fwDll);
-                    if(fw==null) throw new InvalidOperationException("FeatureWorks add-in is unavailable");
-                    model.ClearSelection2(true);
-                    if(!imported.Select2(false,0)) throw new InvalidOperationException("Cannot select imported feature");
-                    int recognized=fw.RecognizeFeatureAutomatic(recognitionOptions);
-                    Log("RecognizeFeatureAutomatic=" + recognized);
-                    if(!fw.CreateFeatures(0)) throw new InvalidOperationException("FeatureWorks did not create features. Check the desktop recognition dialog.");
-                    var recognizedModel=(IModelDoc2)app.ActiveDoc;
-                    if(recognizedModel==null || !Object.ReferenceEquals(recognizedModel,model))
-                        throw new InvalidOperationException("Recognition switched documents. Review and save the new task part in SolidWorks.");
-                    if(!model.ForceRebuild3(false) || Sketches(model).Length==0)
-                        throw new InvalidOperationException("Recognition did not produce rebuildable sketch features");
                     OneSolid(model);
                     Audit(model);
                     SavePart(model,destination);

@@ -13,7 +13,8 @@ param(
     [string]$Template,
     [string]$ImportedPart,
     [string]$Plan,
-    [string]$RecognizedPart,
+    [switch]$PrepareOnly,
+    [string]$ReuseVerified,
     [string]$EditDimension,
     [switch]$NoPreview
 )
@@ -54,16 +55,20 @@ if ($Check) {
     & $Python @checkArguments
     exit $LASTEXITCODE
 }
-if (-not $Source -or -not $Destination -or -not $WorkDir) { throw 'Supply -Source, -Destination and -WorkDir, or run with -Check.' }
+if (-not $Source) { throw 'Supply -Source, or run with -Check.' }
 $entrypoint = Join-Path $PSScriptRoot 'convert_part.py'
-$options = @('-X','utf8','-B',$entrypoint,$Source,$Destination,'--work-dir',$WorkDir,'--units',$Units,'--holes',$Holes)
+$options = @('-X','utf8','-B',$entrypoint,$Source)
+if ($Destination) { $options += $Destination }
+$options += @('--units',$Units,'--holes',$Holes)
+if ($PrepareOnly) { $options += '--prepare-only' }
 $forward = @{
+    '--work-dir' = $WorkDir
     '--ocp-path' = $OcpPath
     '--sw-root' = $SwRoot
     '--template' = $Template
     '--imported-part' = $ImportedPart
     '--plan' = $Plan
-    '--recognized-part' = $RecognizedPart
+    '--reuse-verified' = $ReuseVerified
     '--edit-dimension' = $EditDimension
 }
 foreach ($pair in $forward.GetEnumerator()) {

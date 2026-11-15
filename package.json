@@ -1,6 +1,6 @@
 {
   "name": "dsh-stl-to-editable-part",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "DeepSeek Harness plugin that adds a sidebar workbench for rebuilding STL meshes as editable SolidWorks parts.",
   "homepage": "https://github.com/msz3546/stl-to-editable-part",
   "repository": {

@@ -2,7 +2,7 @@
 
 使用安装了 SolidWorks 的 Windows 电脑，在 DeepSeek Harness 桌面版打开本机工作文件夹。输入 `/stl-to-editable-part`，再给出 STL 路径和要求。通过 `/` 菜单也可选取同名技能。若刚装好技能，另开一个会话来刷新技能目录。
 
-工作目录要能被当前 Harness 会话写入。工作副本可用 `-ImportedPart` 续接，原生重建计划可用 `-Plan` 续接。 [原生重建和验收](workflow.md) 中的双连字符选项对应底层 Python 命令。也可用 PowerShell 入口的同义参数，如 `-HoleDiameterMm`、`-Template`、`-RecognizedPart`、`-EditDimension`。
+工作目录要能被当前 Harness 会话写入。新件用 `-PrepareOnly` 准备几何，再用 `-Plan` 重建。已有验收记录时可用 `-ReuseVerified`。工作副本可用 `-ImportedPart` 续接。[原生重建和验收](workflow.md) 中的双连字符选项对应底层 Python 命令。
 
 ```powershell
 & '<技能目录>\scripts\run-on-windows.ps1' -Check

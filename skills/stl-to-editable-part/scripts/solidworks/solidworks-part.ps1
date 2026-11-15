@@ -2,14 +2,13 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('Probe','Prepare','Recognize','Define','Rebuild','Audit','Validate')]
+    [ValidateSet('Probe','Prepare','Define','Rebuild','RebuildValidate','Audit','Validate')]
     [string]$Mode,
     [string]$Source,
     [string]$Destination,
     [string]$Baseline,
     [string]$SwRoot,
     [string]$Template,
-    [int]$RecognitionOptions = 9,
     [ValidateRange(0.0,1000000.0)][double]$VolumeToleranceMm3 = 0.01,
     [ValidateRange(0.0,1000.0)][double]$BoundsToleranceMm = 0.001,
     [string]$EditDimension,
@@ -38,13 +37,13 @@ function Get-NewPath([string]$Path, [string]$Extension) {
 if ($Mode -ne 'Probe') {
     $Source = Get-ExistingPath $Source 'source'
     $extension = [IO.Path]::GetExtension($Source).ToLowerInvariant()
-    $expected = if ($Mode -eq 'Rebuild') { @('.json') } elseif ($Mode -eq 'Prepare') { @('.step','.stp','.sldprt') } else { @('.sldprt') }
+    $expected = if ($Mode -in @('Rebuild','RebuildValidate')) { @('.json') } elseif ($Mode -eq 'Prepare') { @('.step','.stp','.sldprt') } else { @('.sldprt') }
     if ($extension -notin $expected) { throw "Unexpected source extension for ${Mode}: $extension" }
 }
-if ($Mode -in @('Prepare','Recognize','Define','Rebuild')) { $Destination = Get-NewPath $Destination '.sldprt' }
-if ($Mode -eq 'Validate') {
+if ($Mode -in @('Prepare','Define','Rebuild','RebuildValidate')) { $Destination = Get-NewPath $Destination '.sldprt' }
+if ($Mode -in @('Validate','RebuildValidate')) {
     $Baseline = Get-ExistingPath $Baseline 'baseline SLDPRT'
-    if ([IO.Path]::GetExtension($Baseline) -ne '.sldprt' -or $Baseline -eq $Source) { throw 'Use a distinct, imported baseline SLDPRT.' }
+    if ([IO.Path]::GetExtension($Baseline) -ne '.sldprt' -or $Baseline -in @($Source,$Destination)) { throw 'Use a distinct, imported baseline SLDPRT.' }
     if ($Preview) { $Preview = Get-NewPath $Preview '.bmp' }
     if ($EditDimension -and $EditFactor -eq 1) { throw 'Select an edit factor other than 1.' }
 }
@@ -59,12 +58,11 @@ if (-not $SwRoot) {
 }
 if (-not $SwRoot) { throw 'SolidWorks installation not found. Supply -SwRoot.' }
 $interop = Join-Path $SwRoot 'api\redist'
-$assemblies = @('sldworks','swconst','fworks') | ForEach-Object { Join-Path $interop "SolidWorks.Interop.$_.dll" }
+$assemblies = @('sldworks','swconst') | ForEach-Object { Join-Path $interop "SolidWorks.Interop.$_.dll" }
 if (-not ('SolidWorksPart' -as [type])) {
     foreach ($assembly in $assemblies) { Add-Type -Path $assembly }
     $sourceCode = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'SolidWorksPart.cs') -Raw -Encoding UTF8
     Add-Type -TypeDefinition $sourceCode -ReferencedAssemblies ($assemblies + 'System.Core.dll' + 'System.Web.Extensions.dll')
 }
-$featureWorksDll = Join-Path $SwRoot 'fworks\fworks.dll'
-[SolidWorksPart]::Run($Mode,$Source,$Destination,$Baseline,$Template,$featureWorksDll,
-    $RecognitionOptions,$VolumeToleranceMm3,$BoundsToleranceMm,$EditDimension,$EditFactor,$Preview)
+[SolidWorksPart]::Run($Mode,$Source,$Destination,$Baseline,$Template,
+    $VolumeToleranceMm3,$BoundsToleranceMm,$EditDimension,$EditFactor,$Preview)
